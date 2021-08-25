@@ -8,17 +8,13 @@ const sendgridTransport = require("nodemailer-sendgrid-transport");
 const express = require("express");
 const router = express.Router();
 
-const transporter = nodemailer.createTransport(
-  sendgridTransport({
-    auth: {
-      api_key: "",
-    },
-  })
-);
-
 router.get("/me", auth, async (req, res) => {
-  const user = await User.findById(req.user._id).select("-password");
-  res.send(user);
+  User.findById(req.user._id)
+    .select("-password")
+    .populate("cart.items.productId")
+    .exec((err, user) => {
+      return res.status(200).send(user);
+    });
 });
 
 router.post(
@@ -39,6 +35,7 @@ router.post(
       .trim()
       .isLength({ min: 6 })
       .withMessage("Password must be at least 6 characters"),
+          //  .isEmpty(),
     body("FirstName")
       .trim()
       .not()
@@ -49,17 +46,6 @@ router.post(
       .not()
       .isEmpty()
       .withMessage("This field is required"),
-    body("address")
-      .trim()
-      .not()
-      .isEmpty()
-      .withMessage("This field is required"),
-    body("phoneNumber")
-      .trim()
-      .not()
-      .isEmpty()
-      .isNumeric()
-      .withMessage("This field is required"),
   ],
   async (req, res) => {
     try {
@@ -69,14 +55,15 @@ router.post(
         error.statusCode = 422;
         error.data = errors.array();
         res.send(errors);
+        return;
       }
+      console.log(req.body);
       let user = new User(
         _.pick(req.body, [
           "FirstName",
           "LastName",
           "email",
           "phoneNumber",
-          "address",
           "password",
         ])
       );
@@ -100,5 +87,37 @@ router.post(
     } catch (err) {}
   }
 );
+
+router.post("/create-address", auth, async (req, res) => {
+  try {
+    const userInfo = await User.findById({ _id: req.user._id });
+    const userData = await userInfo.CreateAddress(req.body);
+    res.status(200).send(userData["address"]);
+  } catch (err) {
+    return res.status(400).json("Please try again");
+  }
+});
+
+router.post("/edit-address", auth, async (req, res) => {
+  try {
+    const userInfo = await User.findById({ _id: req.user._id });
+    const userData = await userInfo.UpdateAddress(req.body);
+    res.status(200).send(userData["address"]);
+  } catch (err) {
+    return res.status(400).json("Please try again");
+  }
+});
+
+router.post("/setDefault", auth, async (req, res) => {
+  console.log(req.body.data);
+
+  try {
+    const userInfo = await User.findById({ _id: req.user._id });
+    const userData = await userInfo.SetDefaultAddress(req.body.data);
+    res.status(200).send(userData);
+  } catch (err) {
+    return res.status(400).json("Please try again");
+  }
+});
 
 module.exports = router;

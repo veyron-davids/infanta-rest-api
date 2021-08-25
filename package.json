@@ -13,7 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.948.0",
-    "bcrypt": "^5.0.0",
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
@@ -22,13 +22,12 @@
     "express-validator": "^6.11.1",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
-    "mongoose": "^5.11.17",
+    "mongoose": "^5.13.6",
     "multer": "^1.4.2",
     "multer-s3": "^2.9.0",
     "nodemailer": "^6.6.1",
     "nodemailer-sendgrid-transport": "^0.2.0",
-    "nodemon": "^2.0.7",
-    "winston-mongodb": "^5.0.7"
+    "nodemon": "^2.0.7"
   },
   "devDependencies": {
     "jest": "^26.6.3",

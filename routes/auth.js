@@ -7,10 +7,10 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   let user = await User.findOne({ email: req.body.email });
-  if (!user) return res.status(400).json({ success: false });
+  if (!user) return res.status(403).json("E-Mail address already exists");
 
   const validPassword = await bcrypt.compare(req.body.password, user.password);
-  if (!validPassword) return res.status(400).json({ success: false });
+  if (!validPassword) return res.status(403).send({ success: false });
 
   const token = user.generateAuthToken();
   res.send(token);
